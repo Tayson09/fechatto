@@ -3,10 +3,10 @@ import { cn } from "@/lib/utils";
 
 type ButtonVariant = "default" | "ghost" | "outline" | "secondary";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+type ButtonProps = React.PropsWithChildren<React.ButtonHTMLAttributes<HTMLButtonElement>> & {
   variant?: ButtonVariant;
   size?: "default" | "sm" | "lg" | "icon";
-}
+};
 
 const variantStyles: Record<ButtonVariant, string> = {
   default:
