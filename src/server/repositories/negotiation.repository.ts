@@ -1,10 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import type { Prisma } from "@prisma/client";
-import type { CreateNegotiationInput, UpdateNegotiationInput } from "../validators/negotiation.schema";
-
-function toNumber(value: unknown) {
-  return Number(value ?? 0);
-}
+import type { Prisma, NegotiationStatus } from "@prisma/client";
+import type { CreateNegotiationSchemaInput, UpdateNegotiationSchemaInput } from "../validators/negotiation.schema";
 
 export class NegotiationRepository {
   async findClient(userId: string, clientId: string) {
@@ -32,14 +28,14 @@ export class NegotiationRepository {
       select?: Prisma.NegotiationSelect;
       skip?: number;
       take?: number;
-      status?: string;
+      status?: NegotiationStatus;
     } = {}
   ) {
     const { select, skip = 0, take = 20, status } = opts;
     return prisma.negotiation.findMany({
       where: {
         userId,
-        ...(status ? { status: status as any } : {}),
+        ...(status ? { status } : {}),
       },
       select: select || {
         id: true,
@@ -57,14 +53,14 @@ export class NegotiationRepository {
     });
   }
 
-  async create(userId: string, data: CreateNegotiationInput, commissionSnapshot: number) {
+  async create(userId: string, data: CreateNegotiationSchemaInput, commissionSnapshot: number) {
     return prisma.negotiation.create({
       data: {
         userId,
         clientId: data.clientId,
         propertyId: data.propertyId,
         notes: data.notes ?? null,
-        status: data.status ?? "IN_PROGRESS",
+        status: "IN_PROGRESS",
         commission: commissionSnapshot,
       },
       include: {
@@ -74,45 +70,38 @@ export class NegotiationRepository {
     });
   }
 
-  async update(id: string, data: UpdateNegotiationInput) {
+  async update(id: string, data: UpdateNegotiationSchemaInput) {
     return prisma.negotiation.update({
       where: { id },
-      data: {
-        clientId: data.clientId,
-        propertyId: data.propertyId,
-        status: data.status as any,
-        notes: data.notes ?? undefined,
-        closedAt: data.closedAt ? new Date(data.closedAt) : undefined,
-      },
+      data: { notes: data.notes ?? null }
     });
   }
 
-  async close(id: string, commissionSnapshot: number) {
-    return prisma.$transaction(async (tx) => {
-      const negotiation = await tx.negotiation.update({
-        where: { id },
-        data: {
-          status: "CLOSED_WON",
-          closedAt: new Date(),
-          commission: commissionSnapshot,
-        },
+  async close(id: string, status: "CLOSED_WON" | "CLOSED_LOST", commissionSnapshot: number) {
+    if (status === 'CLOSED_WON') {
+      return prisma.$transaction(async (tx) => {
+        const negotiation = await tx.negotiation.update({
+          where: { id },
+          data: {
+            status: "CLOSED_WON",
+            closedAt: new Date(),
+            commission: commissionSnapshot,
+          },
+        });
+
+        await tx.property.update({
+          where: { id: negotiation.propertyId },
+          data: { status: "SOLD" }
+        });
+        return negotiation;
       });
-
-      await tx.property.update({
-        where: { id: negotiation.propertyId },
-        data: { status: "SOLD" },
-      });
-
-      return negotiation;
-    });
-  }
-
-  async markLost(id: string) {
+    }
     return prisma.negotiation.update({
       where: { id },
       data: {
         status: "CLOSED_LOST",
         closedAt: new Date(),
+        commission: commissionSnapshot,
       },
     });
   }
@@ -127,19 +116,9 @@ export class NegotiationRepository {
     });
   }
 
-  async listVisits(userId: string) {
+  async listVisits(negotiationId: string) {
     return prisma.visit.findMany({
-      where: { negotiation: { userId } },
-      include: {
-        negotiation: {
-          select: {
-            id: true,
-            status: true,
-            client: { select: { name: true } },
-            property: { select: { address: true, city: true } },
-          },
-        },
-      },
+      where: { negotiationId },
       orderBy: { date: "desc" },
     });
   }
