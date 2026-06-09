@@ -16,55 +16,25 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
 
   try {
     const { id } = await params;
-    const { searchParams } = new URL(req.url);
-    const withHistory = searchParams.get("history") === "true";
-
-    const client = withHistory
-      ? await clientService.getWithHistory(session.user.id, id)
-      : await clientService.getById(session.user.id, id);
-
-    return NextResponse.json({ data: serializeClient(client) });
+    const history = await clientService.getHistory(session.user.id, id);
+    return NextResponse.json({ data: history });
   } catch (error) {
     return handleError(error);
   }
 }
 
-export async function PUT(req: NextRequest, { params }: RouteContext) {
+export async function POST(req: NextRequest, { params }: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const { id } = await params;
     const body = await req.json();
-    const client = await clientService.update(session.user.id, id, body);
-    return NextResponse.json({ data: serializeClient(client) });
+    const entry = await clientService.addHistory(session.user.id, id, body);
+    return NextResponse.json({ data: entry }, { status: 201 });
   } catch (error) {
     return handleError(error);
   }
-}
-
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  try {
-    const { id } = await params;
-    await clientService.softDelete(session.user.id, id);
-    return NextResponse.json({ message: "Cliente arquivado com sucesso" });
-  } catch (error) {
-    return handleError(error);
-  }
-}
-
-function serializeClient(client: Record<string, unknown>): Record<string, unknown> {
-  const toNum = (v: unknown) =>
-    v != null ? parseFloat(String(v)) : null;
-  return {
-    ...client,
-    income: toNum(client.income),
-    priceMin: toNum(client.priceMin),
-    priceMax: toNum(client.priceMax),
-  };
 }
 
 function handleError(error: unknown) {

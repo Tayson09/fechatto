@@ -34,6 +34,13 @@ enum NegotiationStatus {
   CLOSED_LOST
 }
 
+enum InteractionType {
+  CALL
+  VISIT
+  RETURN
+  NOTE
+}
+
 model User {
   id           String        @id @default(cuid())
   email        String        @unique
@@ -61,9 +68,11 @@ model Client {
   location     String?
   priceMin     Decimal?       @db.Decimal(15, 2)
   priceMax     Decimal?       @db.Decimal(15, 2)
+  profile      String?
   notes        String?        @db.Text
   status       ClientStatus   @default(LEAD)
-  nextFollowUp DateTime?
+  nextFollowUp     DateTime?
+  nextFollowUpNote String?
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   deletedAt    DateTime?
@@ -79,10 +88,12 @@ model Client {
 }
 
 model ClientHistory {
-  id        String   @id @default(cuid())
+  id        String          @id @default(cuid())
   clientId  String
-  note      String   @db.Text
-  createdAt DateTime @default(now())
+  type      InteractionType @default(NOTE)
+  title     String?
+  note      String          @db.Text
+  createdAt DateTime        @default(now())
 
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 
