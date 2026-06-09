@@ -20,25 +20,13 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const body = await req.json();
     const data = await service.update(session.user.id, params.id, body);
-    return NextResponse.json({ data });
-  } catch (error) {
-    return handleError(error);
-  }
-}
-
-export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  try {
-    const data = await service.markLost(session.user.id, params.id);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
