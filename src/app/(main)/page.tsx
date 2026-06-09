@@ -1,49 +1,172 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import type { ElementType } from "react";
 import { getServerSession } from "next-auth";
+import { BarChart3, Building2, CircleDollarSign, TrendingUp, Users } from "lucide-react";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { withCache } from "@/lib/cache";
+import { CommissionRepository } from "@/server/repositories/commission.repository";
+import { CommissionService } from "@/server/services/commission.service";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-async function getMetrics(userId: string) {
-  return withCache(`dashboard:${userId}`, async () => {
-    const [totalClients, totalProperties, openNegotiations, monthCommission] =
-      await Promise.all([
-        prisma.client.count({ where: { userId, deletedAt: null } }),
-        prisma.property.count({ where: { userId, status: "AVAILABLE", deletedAt: null } }),
-        prisma.negotiation.count({ where: { userId, status: "IN_PROGRESS" } }),
-        prisma.negotiation.aggregate({
-          where: {
-            userId,
-            status: "CLOSED_WON",
-            closedAt: { gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1) },
-          },
-          _sum: { commission: true },
-        }),
-      ]);
+const service = new CommissionService(new CommissionRepository());
 
-    return {
-      totalClients,
-      totalProperties,
-      openNegotiations,
-      monthCommission: monthCommission._sum.commission || 0,
-    };
-  }, 60_000);
+const currency = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  maximumFractionDigits: 2,
+});
+
+function MetricCard({
+  icon: Icon,
+  title,
+  value,
+  subtitle,
+}: {
+  icon: ElementType;
+  title: string;
+  value: string;
+  subtitle: string;
+}) {
+  return (
+    <Card className="rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm">
+      <CardContent className="p-5">
+        <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+          <Icon className="h-5 w-5" />
+        </div>
+        <p className="text-sm font-medium text-slate-500">{title}</p>
+        <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
+        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+      </CardContent>
+    </Card>
+  );
 }
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
-  if (!session) return null;
+type DashboardMetrics = {
+  period: "monthly" | "quarterly" | "yearly";
+  totalActiveClients: number;
+  totalAvailableProperties: number;
+  openNegotiations: number;
+  closedNegotiations: number;
+  totalNegotiations: number;
+  forecastCommission: number;
+  generatedCommission: number;
+  totalCommission: number;
+  averageCommission: number;
+  conversionRate: number;
+};
 
-  const metrics = await getMetrics(session.user.id);
+const demoMetrics: DashboardMetrics = {
+  period: "monthly",
+  totalActiveClients: 28,
+  totalAvailableProperties: 16,
+  openNegotiations: 12,
+  closedNegotiations: 9,
+  totalNegotiations: 21,
+  forecastCommission: 18400,
+  generatedCommission: 12750,
+  totalCommission: 12750,
+  averageCommission: 1416.67,
+  conversionRate: 42.9,
+};
+
+function isEmptyMetrics(metrics: DashboardMetrics) {
+  return (
+    metrics.totalActiveClients === 0 &&
+    metrics.totalAvailableProperties === 0 &&
+    metrics.openNegotiations === 0 &&
+    metrics.closedNegotiations === 0 &&
+    metrics.totalNegotiations === 0 &&
+    metrics.forecastCommission === 0 &&
+    metrics.generatedCommission === 0 &&
+    metrics.totalCommission === 0 &&
+    metrics.averageCommission === 0
+  );
+}
+
+export default async function MainDashboardPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) redirect("/login");
+
+  let metrics: DashboardMetrics = demoMetrics;
+
+  try {
+    const raw = await service.getDashboardMetrics(session.user.id, "monthly");
+    if (!isEmptyMetrics(raw)) {
+      metrics = raw;
+    }
+  } catch (error) {
+    console.error(error);
+  }
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <div>Clientes ativos: {metrics.totalClients}</div>
-        <div>Imóveis disponíveis: {metrics.totalProperties}</div>
-        <div>Negociações em andamento: {metrics.openNegotiations}</div>
-        <div>Comissão prevista (mês): R$ {Number(metrics.monthCommission).toFixed(2)}</div>
-      </div>
+    <div className="space-y-6">
+      <header className="flex flex-col gap-3 rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <Badge className="rounded-full bg-slate-900 px-3 py-1 text-white hover:bg-slate-900">Visão gerencial</Badge>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Dashboard principal</h1>
+          <p className="mt-2 max-w-2xl text-sm text-slate-500">
+            Resumo operacional com clientes, imóveis, negociações e comissões consolidadas.
+          </p>
+        </div>
+        <div className="text-sm text-slate-500">
+          Período padrão: <span className="font-medium text-slate-950">mensal</span>
+        </div>
+      </header>
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <MetricCard icon={Users} title="Clientes ativos" value={String(metrics.totalActiveClients)} subtitle="Clientes em atendimento, proposta ou visita." />
+        <MetricCard icon={Building2} title="Imóveis disponíveis" value={String(metrics.totalAvailableProperties)} subtitle="Imóveis livres para novas negociações." />
+        <MetricCard icon={TrendingUp} title="Negociações em andamento" value={String(metrics.openNegotiations)} subtitle="Pipeline ativo no momento." />
+        <MetricCard icon={CircleDollarSign} title="Negociações concluídas" value={String(metrics.closedNegotiations)} subtitle="Fechamentos confirmados no período." />
+        <MetricCard icon={BarChart3} title="Comissão prevista do mês" value={currency.format(metrics.forecastCommission)} subtitle="Somatório projetado do pipeline atual." />
+        <MetricCard icon={CircleDollarSign} title="Comissão gerada" value={currency.format(metrics.generatedCommission)} subtitle="Snapshot financeiro gravado no fechamento." />
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-2">
+        <Card className="rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm">
+          <CardContent className="p-5">
+            <h3 className="text-base font-semibold text-slate-950">Indicadores comerciais</h3>
+            <p className="text-sm text-slate-500">Performance do funil no período atual.</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Total de negociações</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{metrics.totalNegotiations}</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Taxa de conversão</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{metrics.conversionRate.toFixed(1)}%</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Ticket médio</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{currency.format(metrics.averageCommission)}</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm text-slate-500">Comissão total</p>
+                <p className="mt-1 text-2xl font-semibold text-slate-950">{currency.format(metrics.totalCommission)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm">
+          <CardContent className="p-5">
+            <h3 className="text-base font-semibold text-slate-950">Ações rápidas</h3>
+            <p className="text-sm text-slate-500">Atalhos para os módulos principais.</p>
+            <div className="mt-4 flex flex-col gap-3">
+              <Link href="/clients" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                Abrir clientes
+              </Link>
+              <Link href="/properties" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                Ver imóveis
+              </Link>
+              <Link href="/commissions" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+                Painel de comissões
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }

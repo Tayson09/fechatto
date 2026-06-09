@@ -1,6 +1,6 @@
 import { ClientRepository } from "../repositories/client.repository";
 import { CreateClientSchema, UpdateClientSchema } from "../validators/client.schema";
-import { AppError, NotFoundError } from "@/lib/errors";
+import { NotFoundError } from "@/lib/errors";
 import type { CreateClientInput, UpdateClientInput } from "../validators/client.schema";
 
 export class ClientService {
@@ -30,8 +30,8 @@ export class ClientService {
       take: 100, // limite para o kanban
     });
     // Agrupa por status
-    const columns: Record<string, typeof clients> = {};
-    clients.forEach((c) => {
+    const columns: Record<string, (typeof clients)[number][]> = {};
+    clients.forEach((c: (typeof clients)[number]) => {
       const col = columns[c.status] || [];
       col.push(c);
       columns[c.status] = col;
@@ -41,6 +41,12 @@ export class ClientService {
 
   async list(userId: string, params: { skip?: number; take?: number; status?: string }) {
     return this.repo.findAllByUser(userId, params);
+  }
+
+  async getById(userId: string, clientId: string) {
+    const client = await this.repo.findOne(clientId, userId);
+    if (!client) throw new NotFoundError("Cliente");
+    return client;
   }
 
   async getOverdueFollowUps(userId: string) {
