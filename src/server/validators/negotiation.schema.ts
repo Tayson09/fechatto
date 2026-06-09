@@ -28,7 +28,7 @@ export const CreateVisitSchema = z.object({
   result: z.string().max(2000, "O feedback deve ter no máximo 2000 caracters").optional().nullable(),
 });
 
-export type CreateNegotiationSchema = z.infer< typeof CreateNegotiationSchema >;
-export type UpdateNegotiationSchema = z.infer< typeof UpdateNegotiationSchema >;
-export type CloseNegotiationSchema = z.infer< typeof CloseNegotiationSchema >;
-export type CreateVisitSchema = z.infer< typeof CreateVisitSchema >;
+export type CreateNegotiationSchemaInput = z.infer< typeof CreateNegotiationSchema >;
+export type UpdateNegotiationSchemaInput = z.infer< typeof UpdateNegotiationSchema >;
+export type CloseNegotiationSchemaInput = z.infer< typeof CloseNegotiationSchema >;
+export type CreateVisitSchemaInput = z.infer< typeof CreateVisitSchema >;
