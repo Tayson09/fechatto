@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   Bell,
@@ -36,6 +36,12 @@ import { Input } from "@/components/ui/input";
 
 const periodFilters = ["Este mês", "Trimestre", "Ano"];
 
+const periodMap: Record<string, string> = {
+  "Este mês": "monthly",
+  Trimestre: "quarterly",
+  Ano: "yearly",
+};
+
 const commissionData = [
   { month: "Jan", value: 8.2 },
   { month: "Fev", value: 6.3 },
@@ -54,14 +60,7 @@ const funnelData = [
   { stage: "Perdido", value: 6 },
 ];
 
-const followUps = [
-  { name: "Carlos Mendes", when: "Ontem · não contatado", status: "Atrasado" },
-  { name: "Ana Lima", when: "Ontem · não contatado", status: "Atrasado" },
-  { name: "Pedro Santos", when: "Hoje · 14:00", status: "Hoje" },
-  { name: "Mariana Costa", when: "Hoje · 17:30", status: "Hoje" },
-];
-
-const properties = [
+const staticProperties = [
   { name: "Apto. Meireles 3Q", meta: "Apartamento · R$ 480k", views: 124 },
   { name: "Casa Aldeota", meta: "Casa · R$ 890k", views: 87 },
   { name: "Terreno Eusébio", meta: "Terreno · R$ 220k", views: 63 },
@@ -73,6 +72,29 @@ const conversionData = [
 ];
 
 const COLORS = ["#0b2f5b", "#d8e2ef"];
+
+const currency = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
+type DashboardMetrics = {
+  totalAvailableProperties: number;
+  openNegotiations: number;
+  forecastCommission: number;
+  generatedCommission: number;
+  averageCommission: number;
+  conversionRate: number;
+};
+
+type OverdueClient = {
+  id: string;
+  name: string;
+  nextFollowUp: string | null;
+  status: string;
+};
 
 function MetricCard({
   icon: Icon,
@@ -111,23 +133,39 @@ function MetricCard({
   );
 }
 
-function SectionTitle({ title, subtitle }: { title: string; subtitle: string }) {
-  return (
-    <div className="mb-4">
-      <h3 className="text-base font-semibold text-slate-950">{title}</h3>
-      <p className="text-sm text-slate-500">{subtitle}</p>
-    </div>
-  );
-}
-
 export default function DashboardPage() {
   const [activeFilter, setActiveFilter] = useState("Este mês");
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [overdues, setOverdues] = useState<OverdueClient[]>([]);
 
   const headerSubtitle = useMemo(() => {
     if (activeFilter === "Trimestre") return "Resumo consolidado do trimestre";
     if (activeFilter === "Ano") return "Visão anual de performance comercial";
     return "Visão geral do mês com indicadores em tempo real";
   }, [activeFilter]);
+
+  useEffect(() => {
+    const period = periodMap[activeFilter] ?? "monthly";
+    fetch(`/api/dashboard?period=${period}`)
+      .then((r) => r.json())
+      .then(({ data }) => setMetrics(data))
+      .catch(console.error);
+  }, [activeFilter]);
+
+  useEffect(() => {
+    fetch("/api/follow-ups")
+      .then((r) => r.json())
+      .then(({ data }) => {
+        if (Array.isArray(data)) setOverdues(data);
+      })
+      .catch(console.error);
+  }, []);
+
+  const overdueCount = overdues.length;
+  const overdueNames = overdues
+    .slice(0, 2)
+    .map((c) => c.name)
+    .join(" e ");
 
   return (
     <div className="space-y-6">
@@ -166,45 +204,51 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 shadow-sm">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>
-              <strong>2 follow-ups atrasados</strong> — Carlos Mendes e Ana Lima precisam de contato urgente.
-            </span>
+      {overdueCount > 0 && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>
+                <strong>
+                  {overdueCount} follow-up{overdueCount > 1 ? "s" : ""} atrasado{overdueCount > 1 ? "s" : ""}
+                </strong>
+                {overdueNames ? ` — ${overdueNames} precisam de contato urgente.` : "."}
+              </span>
+            </div>
+            <Button variant="ghost" className="h-8 rounded-xl px-3 text-amber-900 hover:bg-amber-100">
+              Ver detalhes
+            </Button>
           </div>
-          <Button variant="ghost" className="h-8 rounded-xl px-3 text-amber-900 hover:bg-amber-100">
-            Ver detalhes
-          </Button>
         </div>
-      </div>
+      )}
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           icon={CircleDollarSign}
           title="Comissão realizada"
-          value="R$ 12.750"
-          subtitle="↑ 18% vs mês anterior"
-          change="18%"
+          value={metrics ? currency.format(metrics.generatedCommission) : "—"}
+          subtitle="Negociações fechadas no período"
         />
         <MetricCard
           icon={TrendingUp}
           title="Comissão prevista"
-          value="R$ 18.400"
-          subtitle="em 7 negociações ativas"
+          value={metrics ? currency.format(metrics.forecastCommission) : "—"}
+          subtitle={
+            metrics ? `em ${metrics.openNegotiations} negociações ativas` : "negociações ativas"
+          }
         />
         <MetricCard
           icon={Bell}
-          title="Follow-ups hoje"
-          value="4"
-          subtitle="2 atrasados"
+          title="Follow-ups atrasados"
+          value={String(overdueCount)}
+          subtitle={overdueCount > 0 ? "clientes aguardando contato" : "nenhum atrasado"}
         />
         <MetricCard
           icon={Building2}
           title="Imóveis disponíveis"
-          value="14"
-          subtitle="3 reservados"
+          value={metrics ? String(metrics.totalAvailableProperties) : "—"}
+          subtitle="com status disponível"
         />
       </section>
 
@@ -252,36 +296,36 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-base">Follow-ups pendentes</CardTitle>
-                <CardDescription>agenda de hoje</CardDescription>
+                <CardDescription>contatos atrasados</CardDescription>
               </div>
               <Badge variant="secondary" className="rounded-full">
-                4 itens
+                {overdueCount} {overdueCount === 1 ? "item" : "itens"}
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {followUps.map((item, index) => (
-              <div
-                key={item.name}
-                className={`flex items-start justify-between gap-3 rounded-2xl border p-3 ${
-                  index === followUps.length - 1 ? "border-slate-200 bg-slate-50/70" : "border-slate-200 bg-white"
-                }`}
-              >
-                <div>
-                  <p className="font-medium text-slate-950">{item.name}</p>
-                  <p className="text-sm text-slate-500">{item.when}</p>
-                </div>
-                <Badge
-                  className={`rounded-full ${
-                    item.status === "Atrasado"
-                      ? "bg-red-50 text-red-600 hover:bg-red-50"
-                      : "bg-amber-50 text-amber-700 hover:bg-amber-50"
-                  }`}
+            {overdueCount === 0 ? (
+              <p className="text-sm text-slate-500">Nenhum follow-up atrasado.</p>
+            ) : (
+              overdues.slice(0, 4).map((client) => (
+                <div
+                  key={client.id}
+                  className="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3"
                 >
-                  {item.status}
-                </Badge>
-              </div>
-            ))}
+                  <div>
+                    <p className="font-medium text-slate-950">{client.name}</p>
+                    <p className="text-sm text-slate-500">
+                      {client.nextFollowUp
+                        ? new Date(client.nextFollowUp).toLocaleDateString("pt-BR")
+                        : "Sem data definida"}
+                    </p>
+                  </div>
+                  <Badge className="rounded-full bg-red-50 text-red-600 hover:bg-red-50">
+                    Atrasado
+                  </Badge>
+                </div>
+              ))
+            )}
           </CardContent>
         </Card>
 
@@ -298,8 +342,11 @@ export default function DashboardPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            {properties.map((item) => (
-              <div key={item.name} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-3">
+            {staticProperties.map((item) => (
+              <div
+                key={item.name}
+                className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-3"
+              >
                 <div>
                   <p className="font-medium text-slate-950">{item.name}</p>
                   <p className="text-sm text-slate-500">{item.meta}</p>
@@ -333,7 +380,11 @@ export default function DashboardPage() {
                     {conversionData.map((entry, index) => (
                       <Cell key={entry.name} fill={COLORS[index % COLORS.length]} />
                     ))}
-                    <Label value="67%" position="center" className="fill-slate-950 text-3xl font-semibold" />
+                    <Label
+                      value={metrics ? `${metrics.conversionRate.toFixed(0)}%` : "—"}
+                      position="center"
+                      className="fill-slate-950 text-3xl font-semibold"
+                    />
                   </Pie>
                   <Tooltip />
                   <Legend verticalAlign="bottom" iconType="circle" />
@@ -376,12 +427,14 @@ export default function DashboardPage() {
             <CardDescription>principais sinais do painel</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {[
-              ["Comissão prevista do mês", "R$ 18.400"],
-              ["Negociações ativas", "7"],
-              ["Visitas agendadas", "9"],
-              ["Clientes em atendimento", "18"],
-            ].map(([label, value]) => (
+            {(
+              [
+                ["Comissão prevista do período", metrics ? currency.format(metrics.forecastCommission) : "—"],
+                ["Negociações ativas", metrics ? String(metrics.openNegotiations) : "—"],
+                ["Imóveis disponíveis", metrics ? String(metrics.totalAvailableProperties) : "—"],
+                ["Follow-ups atrasados", String(overdueCount)],
+              ] as [string, string][]
+            ).map(([label, value]) => (
               <div key={label} className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3">
                 <span className="text-sm text-slate-500">{label}</span>
                 <span className="text-sm font-semibold text-slate-950">{value}</span>
@@ -393,4 +446,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
