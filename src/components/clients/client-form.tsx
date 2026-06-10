@@ -123,19 +123,22 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className={cn(
+          "rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700",
+          "dark:border-red-500/25 dark:bg-red-500/10 dark:text-red-400"
+        )}>
           {error}
         </div>
       )}
 
       {/* Identificação */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           Identificação
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Nome <span className="text-red-500">*</span>
             </label>
             <Input
@@ -146,7 +149,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Perfil</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Perfil</label>
             <Input
               value={profile}
               onChange={(e) => setProfile(e.target.value)}
@@ -154,7 +157,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Profissão</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Profissão</label>
             <Input
               value={profession}
               onChange={(e) => setProfession(e.target.value)}
@@ -162,7 +165,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Idade</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Idade</label>
             <Input
               type="number"
               value={age}
@@ -177,12 +180,12 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
 
       {/* Financeiro */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           Financeiro
         </h3>
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Renda mensal (R$)
             </label>
             <Input
@@ -195,7 +198,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Orçamento mínimo (R$)
             </label>
             <Input
@@ -208,7 +211,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Orçamento máximo (R$)
             </label>
             <Input
@@ -225,12 +228,12 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
 
       {/* Preferências */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           Preferências de imóvel
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700">Tipos de imóvel</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipos de imóvel</label>
             <div className="flex flex-wrap gap-2">
               {PROPERTY_TYPES.map(({ value, label }) => (
                 <button
@@ -240,8 +243,8 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
                   className={cn(
                     "rounded-xl border px-3 py-1.5 text-sm font-medium transition-all",
                     propertyType.includes(value)
-                      ? "border-slate-800 bg-slate-950 text-white"
-                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-400"
+                      ? "border-slate-800 bg-slate-950 text-white dark:border-white/20 dark:bg-white dark:text-slate-900"
+                      : "border-slate-200 bg-white text-slate-600 hover:border-slate-400 dark:border-white/10 dark:bg-white/8 dark:text-slate-400 dark:hover:border-white/20 dark:hover:bg-white/12"
                   )}
                 >
                   {label}
@@ -250,7 +253,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
             </div>
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Localização desejada</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Localização desejada</label>
             <Input
               value={location}
               onChange={(e) => setLocation(e.target.value)}
@@ -263,15 +266,19 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
       {/* Status (somente edição) */}
       {mode === "edit" && (
         <section className="space-y-4">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
             Funil comercial
           </h3>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Etapa atual</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Etapa atual</label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value as ClientStatus)}
-              className="flex h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200"
+              className={cn(
+                "flex h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 shadow-sm outline-none transition",
+                "focus:border-slate-400 focus:ring-2 focus:ring-slate-200",
+                "dark:border-white/10 dark:bg-[#16253a] dark:text-slate-100 dark:focus:border-white/25 dark:focus:ring-white/8"
+              )}
             >
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -285,12 +292,12 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
 
       {/* Follow-up */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           Próximo follow-up
         </h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Data e hora</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Data e hora</label>
             <Input
               type="datetime-local"
               value={nextFollowUp}
@@ -298,7 +305,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Ação planejada</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Ação planejada</label>
             <Input
               value={nextFollowUpNote}
               onChange={(e) => setNextFollowUpNote(e.target.value)}
@@ -310,7 +317,7 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
 
       {/* Observações */}
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400">
+        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
           Observações
         </h3>
         <textarea
@@ -318,12 +325,18 @@ export function ClientForm({ mode, defaultValues, clientId }: ClientFormProps) {
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Observações gerais sobre o cliente..."
           rows={4}
-          className="flex min-h-[100px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:opacity-50"
+          className={cn(
+            "flex min-h-[100px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition",
+            "placeholder:text-slate-400",
+            "focus:border-slate-400 focus:ring-2 focus:ring-slate-200",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            "dark:border-white/10 dark:bg-[#16253a] dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-white/25 dark:focus:ring-white/8"
+          )}
         />
       </section>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-6">
+      <div className="flex items-center justify-end gap-3 border-t border-slate-100 pt-6 dark:border-white/8">
         <Button
           type="button"
           variant="ghost"

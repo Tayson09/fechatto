@@ -77,7 +77,7 @@ export function ClientListView() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-80">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <Input
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
@@ -94,7 +94,10 @@ export function ClientListView() {
       </div>
 
       {/* Status filter tabs */}
-      <div className="flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+      <div className={cn(
+        "flex gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1 shadow-sm",
+        "dark:border-white/8 dark:bg-[#0f1b2d]"
+      )}>
         {STATUS_FILTERS.map((f) => (
           <button
             key={f.value}
@@ -102,8 +105,8 @@ export function ClientListView() {
             className={cn(
               "shrink-0 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
               statusFilter === f.value
-                ? "bg-[#082a54] text-white shadow-sm"
-                : "text-[#082a54] hover:bg-slate-100"
+                ? "bg-[#082a54] text-white shadow-sm dark:bg-white dark:text-[#082a54] dark:shadow-none"
+                : "text-[#082a54] hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/10 dark:hover:text-slate-200"
             )}
           >
             {f.label}
@@ -112,16 +115,19 @@ export function ClientListView() {
       </div>
 
       {/* Table card */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className={cn(
+        "overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm",
+        "dark:border-white/8 dark:bg-[#0f1b2d]"
+      )}>
         {loading ? (
           <div className="flex items-center justify-center py-16">
-            <span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
+            <span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700 dark:border-slate-700 dark:border-t-slate-300" />
           </div>
         ) : clients.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Users className="mb-3 h-10 w-10 text-slate-200" />
-            <p className="text-sm font-medium text-slate-500">Nenhum cliente encontrado</p>
-            <p className="mt-1 text-xs text-slate-400">
+            <Users className="mb-3 h-10 w-10 text-slate-200 dark:text-slate-700" />
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum cliente encontrado</p>
+            <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
               {search || statusFilter
                 ? "Tente outros filtros ou limpe a busca"
                 : "Cadastre seu primeiro cliente"}
@@ -139,17 +145,17 @@ export function ClientListView() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px]">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50/80">
-                  <th className="py-3 pl-5 pr-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400">
+                <tr className="border-b border-slate-100 bg-slate-50/80 dark:border-white/5 dark:bg-white/5">
+                  <th className="py-3 pl-5 pr-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     Cliente
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400">
+                  <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     Status
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400">
+                  <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     Localização
                   </th>
-                  <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400">
+                  <th className="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
                     Follow-up
                   </th>
                   <th className="py-3 pl-3 pr-5" />
@@ -170,25 +176,34 @@ export function ClientListView() {
 
         {/* Pagination */}
         {total > LIMIT && (
-          <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
-            <p className="text-sm text-slate-500">
+          <div className={cn(
+            "flex items-center justify-between border-t border-slate-100 px-5 py-3",
+            "dark:border-white/5"
+          )}>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
               {(page - 1) * LIMIT + 1}–{Math.min(page * LIMIT, total)} de {total}
             </p>
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 disabled:opacity-40"
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 disabled:opacity-40",
+                  "dark:text-slate-500 dark:hover:bg-white/10"
+                )}
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <span className="px-2 text-sm text-slate-600">
+              <span className="px-2 text-sm text-slate-600 dark:text-slate-400">
                 {page} / {totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 disabled:opacity-40"
+                className={cn(
+                  "flex h-8 w-8 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 disabled:opacity-40",
+                  "dark:text-slate-500 dark:hover:bg-white/10"
+                )}
               >
                 <ChevronRight className="h-4 w-4" />
               </button>

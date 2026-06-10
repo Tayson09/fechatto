@@ -6,6 +6,7 @@ import { formatDistanceToNowStrict, format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Bell, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { ClientStatusBadge } from "./client-status-badge";
+import { cn } from "@/lib/utils";
 import type { ClientCard } from "@/types/client";
 
 interface FollowUpData {
@@ -27,7 +28,7 @@ export function FollowUpList() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
-        <span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
+        <span className="h-7 w-7 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700 dark:border-slate-700 dark:border-t-slate-300" />
       </div>
     );
   }
@@ -36,10 +37,13 @@ export function FollowUpList() {
 
   if (isEmpty) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white py-20 text-center">
-        <CheckCircle2 className="mb-3 h-10 w-10 text-emerald-300" />
-        <p className="text-sm font-medium text-slate-600">Tudo em dia!</p>
-        <p className="mt-1 text-xs text-slate-400">
+      <div className={cn(
+        "flex flex-col items-center justify-center rounded-3xl border border-dashed border-slate-200 bg-white py-20 text-center",
+        "dark:border-white/8 dark:bg-[#0f1b2d]"
+      )}>
+        <CheckCircle2 className="mb-3 h-10 w-10 text-emerald-300 dark:text-emerald-700" />
+        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">Tudo em dia!</p>
+        <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
           Nenhum follow-up vencido ou programado para os próximos 7 dias.
         </p>
       </div>
@@ -52,11 +56,14 @@ export function FollowUpList() {
         <section className="space-y-3">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-red-500" />
-            <h3 className="text-sm font-semibold text-red-600">
+            <h3 className="text-sm font-semibold text-red-600 dark:text-red-400">
               Atrasados ({data.overdue.length})
             </h3>
           </div>
-          <div className="overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm">
+          <div className={cn(
+            "overflow-hidden rounded-3xl border border-red-100 bg-white shadow-sm",
+            "dark:border-red-500/25 dark:bg-[#0f1b2d]"
+          )}>
             {data.overdue.map((client, i) => (
               <FollowUpRow
                 key={client.id}
@@ -73,11 +80,14 @@ export function FollowUpList() {
         <section className="space-y-3">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-amber-500" />
-            <h3 className="text-sm font-semibold text-amber-700">
+            <h3 className="text-sm font-semibold text-amber-700 dark:text-amber-400">
               Próximos 7 dias ({data.upcoming.length})
             </h3>
           </div>
-          <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+          <div className={cn(
+            "overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm",
+            "dark:border-white/8 dark:bg-[#0f1b2d]"
+          )}>
             {data.upcoming.map((client, i) => (
               <FollowUpRow
                 key={client.id}
@@ -107,26 +117,33 @@ function FollowUpRow({
   return (
     <Link
       href={`/clients/${client.id}`}
-      className={`flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-slate-50 ${
-        !isLast ? "border-b border-slate-100" : ""
-      }`}
+      className={cn(
+        `flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-slate-50`,
+        "dark:hover:bg-white/5",
+        !isLast ? "border-b border-slate-100 dark:border-white/5" : ""
+      )}
     >
       <div className="flex items-center gap-3 min-w-0">
         <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
-            variant === "overdue" ? "bg-red-50" : "bg-amber-50"
-          }`}
+          className={cn(
+            `flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl`,
+            variant === "overdue"
+              ? "bg-red-50 dark:bg-red-500/15"
+              : "bg-amber-50 dark:bg-amber-500/15"
+          )}
         >
           <Bell
             className={`h-4 w-4 ${
-              variant === "overdue" ? "text-red-500" : "text-amber-500"
+              variant === "overdue"
+                ? "text-red-500"
+                : "text-amber-500"
             }`}
           />
         </div>
         <div className="min-w-0">
-          <p className="truncate font-medium text-slate-950">{client.name}</p>
+          <p className="truncate font-medium text-slate-950 dark:text-slate-100">{client.name}</p>
           {client.nextFollowUpNote && (
-            <p className="mt-0.5 truncate text-xs text-slate-500">
+            <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-500">
               {client.nextFollowUpNote}
             </p>
           )}
@@ -136,7 +153,7 @@ function FollowUpRow({
       <div className="flex shrink-0 flex-col items-end gap-1.5">
         <ClientStatusBadge status={client.status} size="sm" />
         {date && (
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-slate-400 dark:text-slate-500">
             {variant === "overdue"
               ? `há ${formatDistanceToNowStrict(date, { locale: ptBR })}`
               : format(date, "dd/MM · HH:mm", { locale: ptBR })}

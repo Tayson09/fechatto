@@ -8,6 +8,7 @@ import { CommissionRepository } from "@/server/repositories/commission.repositor
 import { CommissionService } from "@/server/services/commission.service";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const service = new CommissionService(new CommissionRepository());
 
@@ -29,14 +30,29 @@ function MetricCard({
   subtitle: string;
 }) {
   return (
-    <Card className="rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm">
+    <Card className={cn(
+      "rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm",
+      "dark:border-white/10 dark:bg-[#0f1b2d]"
+    )}>
       <CardContent className="p-5">
-        <div className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+        <div className={cn(
+          "mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700",
+          "dark:bg-white/10 dark:text-slate-400"
+        )}>
           <Icon className="h-5 w-5" />
         </div>
-        <p className="text-sm font-medium text-slate-500">{title}</p>
-        <p className="mt-1 text-2xl font-semibold tracking-tight text-slate-950">{value}</p>
-        <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+        <p className={cn(
+          "text-sm font-medium text-slate-500",
+          "dark:text-slate-400"
+        )}>{title}</p>
+        <p className={cn(
+          "mt-1 text-2xl font-semibold tracking-tight text-slate-950",
+          "dark:text-slate-100"
+        )}>{value}</p>
+        <p className={cn(
+          "mt-1 text-sm text-slate-500",
+          "dark:text-slate-400"
+        )}>{subtitle}</p>
       </CardContent>
     </Card>
   );
@@ -101,16 +117,34 @@ export default async function MainDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <header className="flex flex-col gap-3 rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between">
+      <header className={cn(
+        "flex flex-col gap-3 rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-sm lg:flex-row lg:items-end lg:justify-between",
+        "dark:border-white/10 dark:bg-[#0f1b2d]"
+      )}>
         <div>
-          <Badge className="rounded-full bg-slate-900 px-3 py-1 text-white hover:bg-slate-900">Visão gerencial</Badge>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Dashboard principal</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-500">
+          <Badge className={cn(
+            "rounded-full bg-slate-900 px-3 py-1 text-white hover:bg-slate-900",
+            "dark:bg-white/12 dark:text-slate-200 dark:hover:bg-white/15"
+          )}>Visão gerencial</Badge>
+          <h1 className={cn(
+            "mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl",
+            "dark:text-slate-100"
+          )}>Dashboard principal</h1>
+          <p className={cn(
+            "mt-2 max-w-2xl text-sm text-slate-500",
+            "dark:text-slate-400"
+          )}>
             Resumo operacional com clientes, imóveis, negociações e comissões consolidadas.
           </p>
         </div>
-        <div className="text-sm text-slate-500">
-          Período padrão: <span className="font-medium text-slate-950">mensal</span>
+        <div className={cn(
+          "text-sm text-slate-500",
+          "dark:text-slate-400"
+        )}>
+          Período padrão: <span className={cn(
+            "font-medium text-slate-950",
+            "dark:text-slate-200"
+          )}>mensal</span>
         </div>
       </header>
 
@@ -124,43 +158,106 @@ export default async function MainDashboardPage() {
       </section>
 
       <section className="grid gap-4 xl:grid-cols-2">
-        <Card className="rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm">
+        <Card className={cn(
+          "rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm",
+          "dark:border-white/10 dark:bg-[#0f1b2d]"
+        )}>
           <CardContent className="p-5">
-            <h3 className="text-base font-semibold text-slate-950">Indicadores comerciais</h3>
-            <p className="text-sm text-slate-500">Performance do funil no período atual.</p>
+            <h3 className={cn(
+              "text-base font-semibold text-slate-950",
+              "dark:text-slate-100"
+            )}>Indicadores comerciais</h3>
+            <p className={cn(
+              "text-sm text-slate-500",
+              "dark:text-slate-400"
+            )}>Performance do funil no período atual.</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Total de negociações</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-950">{metrics.totalNegotiations}</p>
+              <div className={cn(
+                "rounded-2xl bg-slate-50 p-4",
+                "dark:bg-white/8"
+              )}>
+                <p className={cn(
+                  "text-sm text-slate-500",
+                  "dark:text-slate-400"
+                )}>Total de negociações</p>
+                <p className={cn(
+                  "mt-1 text-2xl font-semibold text-slate-950",
+                  "dark:text-slate-100"
+                )}>{metrics.totalNegotiations}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Taxa de conversão</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-950">{metrics.conversionRate.toFixed(1)}%</p>
+              <div className={cn(
+                "rounded-2xl bg-slate-50 p-4",
+                "dark:bg-white/8"
+              )}>
+                <p className={cn(
+                  "text-sm text-slate-500",
+                  "dark:text-slate-400"
+                )}>Taxa de conversão</p>
+                <p className={cn(
+                  "mt-1 text-2xl font-semibold text-slate-950",
+                  "dark:text-slate-100"
+                )}>{metrics.conversionRate.toFixed(1)}%</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Ticket médio</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-950">{currency.format(metrics.averageCommission)}</p>
+              <div className={cn(
+                "rounded-2xl bg-slate-50 p-4",
+                "dark:bg-white/8"
+              )}>
+                <p className={cn(
+                  "text-sm text-slate-500",
+                  "dark:text-slate-400"
+                )}>Ticket médio</p>
+                <p className={cn(
+                  "mt-1 text-2xl font-semibold text-slate-950",
+                  "dark:text-slate-100"
+                )}>{currency.format(metrics.averageCommission)}</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm text-slate-500">Comissão total</p>
-                <p className="mt-1 text-2xl font-semibold text-slate-950">{currency.format(metrics.totalCommission)}</p>
+              <div className={cn(
+                "rounded-2xl bg-slate-50 p-4",
+                "dark:bg-white/8"
+              )}>
+                <p className={cn(
+                  "text-sm text-slate-500",
+                  "dark:text-slate-400"
+                )}>Comissão total</p>
+                <p className={cn(
+                  "mt-1 text-2xl font-semibold text-slate-950",
+                  "dark:text-slate-100"
+                )}>{currency.format(metrics.totalCommission)}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm">
+        <Card className={cn(
+          "rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm",
+          "dark:border-white/10 dark:bg-[#0f1b2d]"
+        )}>
           <CardContent className="p-5">
-            <h3 className="text-base font-semibold text-slate-950">Ações rápidas</h3>
-            <p className="text-sm text-slate-500">Atalhos para os módulos principais.</p>
+            <h3 className={cn(
+              "text-base font-semibold text-slate-950",
+              "dark:text-slate-100"
+            )}>Ações rápidas</h3>
+            <p className={cn(
+              "text-sm text-slate-500",
+              "dark:text-slate-400"
+            )}>Atalhos para os módulos principais.</p>
             <div className="mt-4 flex flex-col gap-3">
-              <Link href="/clients" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+              <Link href="/clients" className={cn(
+                "rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50",
+                "dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/8"
+              )}>
                 Abrir clientes
               </Link>
-              <Link href="/properties" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+              <Link href="/properties" className={cn(
+                "rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50",
+                "dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/8"
+              )}>
                 Ver imóveis
               </Link>
-              <Link href="/commissions" className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50">
+              <Link href="/commissions" className={cn(
+                "rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50",
+                "dark:border-white/10 dark:text-slate-300 dark:hover:bg-white/8"
+              )}>
                 Painel de comissões
               </Link>
             </div>
