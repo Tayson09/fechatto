@@ -211,7 +211,7 @@ Encerra uma negociação como ganha ou perdida.
 
 > **Regra de negócio:** `commission` é capturado do imóvel no momento do fechamento como snapshot imutável. Alterações futuras no imóvel não afetam o histórico financeiro desta negociação.
 
-> **Atenção:** negociações já encerradas (`CLOSED_WON` ou `CLOSED_LOST`) não podem ser reabertas por esta rota.
+> **Atenção:** negociações já encerradas (`CLOSED_WON` ou `CLOSED_LOST`) retornam `409`. O fechamento é irreversível — não é possível reabrir uma negociação encerrada.
 
 ### Body
 
@@ -246,6 +246,7 @@ Encerra uma negociação como ganha ou perdida.
 | Status | Motivo |
 |--------|--------|
 | `404`  | Negociação não encontrada |
+| `409`  | Negociação já encerrada (`CLOSED_WON` ou `CLOSED_LOST`) |
 | `422`  | `status` ausente ou com valor inválido (ex: `IN_PROGRESS`) |
 
 ---
