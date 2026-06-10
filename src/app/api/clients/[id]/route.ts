@@ -3,79 +3,79 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { ClientService } from "@/server/services/client.service";
 import { ClientRepository } from "@/server/repositories/client.repository";
-import { AppError, NotFoundError } from "@/lib/errors";
+import { AppError } from "@/lib/errors";
 import { ZodError } from "zod";
 
 const clientService = new ClientService(new ClientRepository());
 
-type RouteContext = { params: Promise<{ id: string }> };
+type RouteParams = Promise<{ id: string }> | { id: string };
 
-export async function GET(req: NextRequest, { params }: RouteContext) {
+async function getClientId(params: RouteParams) {
+  const resolved = await Promise.resolve(params);
+  return resolved?.id;
+}
+
+export async function GET(_: NextRequest, { params }: { params: RouteParams }) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = session?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { id } = await params;
-    const { searchParams } = new URL(req.url);
-    const withHistory = searchParams.get("history") === "true";
+    const clientId = await getClientId(params);
+    if (!clientId) {
+      return NextResponse.json({ error: "ID do cliente inválido" }, { status: 400 });
+    }
 
-    const client = withHistory
-      ? await clientService.getWithHistory(session.user.id, id)
-      : await clientService.getById(session.user.id, id);
-
-    return NextResponse.json({ data: serializeClient(client) });
+    const client = await clientService.getById(userId, clientId);
+    return NextResponse.json({ data: client });
   } catch (error) {
     return handleError(error);
   }
 }
 
-export async function PUT(req: NextRequest, { params }: RouteContext) {
+export async function PUT(req: NextRequest, { params }: { params: RouteParams }) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = session?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { id } = await params;
-    const body = await req.json();
-    const client = await clientService.update(session.user.id, id, body);
-    return NextResponse.json({ data: serializeClient(client) });
+    const clientId = await getClientId(params);
+    if (!clientId) {
+      return NextResponse.json({ error: "ID do cliente inválido" }, { status: 400 });
+    }
+
+    const body = await req.json().catch(() => {
+      throw new AppError("Corpo da requisição inválido", 400);
+    });
+
+    const client = await clientService.update(userId, clientId, body);
+    return NextResponse.json({ data: client });
   } catch (error) {
     return handleError(error);
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: RouteContext) {
+export async function DELETE(_: NextRequest, { params }: { params: RouteParams }) {
   const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const userId = session?.user?.id;
+  if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { id } = await params;
-    await clientService.softDelete(session.user.id, id);
-    return NextResponse.json({ message: "Cliente arquivado com sucesso" });
+    const clientId = await getClientId(params);
+    if (!clientId) {
+      return NextResponse.json({ error: "ID do cliente inválido" }, { status: 400 });
+    }
+
+    const client = await clientService.softDelete(userId, clientId);
+    return NextResponse.json({ data: client });
   } catch (error) {
     return handleError(error);
   }
-}
-
-function serializeClient(client: Record<string, unknown>): Record<string, unknown> {
-  const toNum = (v: unknown) =>
-    v != null ? parseFloat(String(v)) : null;
-  return {
-    ...client,
-    income: toNum(client.income),
-    priceMin: toNum(client.priceMin),
-    priceMax: toNum(client.priceMax),
-  };
 }
 
 function handleError(error: unknown) {
   if (error instanceof ZodError) {
-    return NextResponse.json(
-      { error: "Dados inválidos", details: error.flatten() },
-      { status: 422 }
-    );
-  }
-  if (error instanceof NotFoundError) {
-    return NextResponse.json({ error: error.message }, { status: 404 });
+    return NextResponse.json({ error: "Dados inválidos", details: error.flatten() }, { status: 422 });
   }
   if (error instanceof AppError) {
     return NextResponse.json({ error: error.message }, { status: error.statusCode });

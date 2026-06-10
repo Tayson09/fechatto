@@ -20,8 +20,9 @@ export async function GET(req: NextRequest) {
     const query = CommissionQuerySchema.parse({
       period: searchParams.get("period") ?? undefined,
     });
+    const search = searchParams.get("search") ?? "";
 
-    const data = await service.getDashboardMetrics(session.user.id, query.period);
+    const data = await service.getDashboardMetrics(session.user.id, query.period, search);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);

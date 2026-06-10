@@ -13,30 +13,22 @@ export async function GET(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { searchParams } = new URL(req.url);
-  const view = searchParams.get("view");
+  const view = searchParams.get("view"); // "list" | "kanban"
   const page = Math.max(1, Number(searchParams.get("page") ?? 1));
   const limit = Math.min(Number(searchParams.get("limit") ?? 20), 100);
   const status = searchParams.get("status") || undefined;
-  const search = searchParams.get("search") || undefined;
 
   try {
     if (view === "kanban") {
       const kanban = await clientService.getKanban(session.user.id);
       return NextResponse.json({ data: kanban });
     }
-
-    if (view === "follow-ups") {
-      const followUps = await clientService.getFollowUps(session.user.id);
-      return NextResponse.json({ data: followUps });
-    }
-
-    const { clients, total } = await clientService.list(session.user.id, {
+    const clients = await clientService.list(session.user.id, {
       skip: (page - 1) * limit,
       take: limit,
       status,
-      search,
     });
-    return NextResponse.json({ data: clients, total, page, limit });
+    return NextResponse.json({ data: clients, page, limit });
   } catch (error) {
     return handleError(error);
   }
@@ -57,10 +49,7 @@ export async function POST(req: NextRequest) {
 
 function handleError(error: unknown) {
   if (error instanceof ZodError) {
-    return NextResponse.json(
-      { error: "Dados inválidos", details: error.flatten() },
-      { status: 422 }
-    );
+    return NextResponse.json({ error: "Dados inválidos", details: error.flatten() }, { status: 422 });
   }
   if (error instanceof AppError) {
     return NextResponse.json({ error: error.message }, { status: error.statusCode });

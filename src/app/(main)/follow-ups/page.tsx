@@ -13,7 +13,7 @@ export default async function FollowUpsPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const { overdue: clients } = await service.getFollowUps(session.user.id);
+  const clients = await service.getOverdueFollowUps(session.user.id);
 
   return (
     <div className="space-y-6">

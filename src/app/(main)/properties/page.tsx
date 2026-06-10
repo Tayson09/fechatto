@@ -23,47 +23,6 @@ const statusLabel: Record<string, string> = {
   SOLD: "Vendido",
 };
 
-const demoProperties = [
-  {
-    id: "demo-property-1",
-    address: "Rua das Acácias, 120",
-    city: "Fortaleza",
-    type: "APARTMENT",
-    status: "AVAILABLE",
-    price: 480000,
-    commission: 14400,
-    shareEnabled: true,
-    shareToken: "demo-apto-120",
-    shareViews: 124,
-    photos: [{ url: "demo-1.jpg" }],
-  },
-  {
-    id: "demo-property-2",
-    address: "Av. Beira Mar, 845",
-    city: "Fortaleza",
-    type: "HOUSE",
-    status: "RESERVED",
-    price: 890000,
-    commission: 26700,
-    shareEnabled: true,
-    shareToken: "demo-house-845",
-    shareViews: 87,
-    photos: [{ url: "demo-2.jpg" }, { url: "demo-3.jpg" }],
-  },
-  {
-    id: "demo-property-3",
-    address: "Condomínio Vila Azul",
-    city: "Eusébio",
-    type: "LAND",
-    status: "AVAILABLE",
-    price: 220000,
-    commission: 6600,
-    shareEnabled: false,
-    shareToken: null,
-    shareViews: 0,
-    photos: [],
-  },
-];
 
 function readSingle(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
@@ -81,20 +40,14 @@ export default async function PropertiesPage({
   const status = readSingle(resolvedSearchParams?.status);
   const type = readSingle(resolvedSearchParams?.type);
 
-  let properties = demoProperties as any[];
-  let demoMode = true;
+  let properties: any[] = [];
 
   try {
-    const realProperties = await service.list(session.user.id, {
+    properties = await service.list(session.user.id, {
       take: 100,
       status,
       type,
     });
-
-    if (realProperties.length > 0) {
-      properties = realProperties as any[];
-      demoMode = false;
-    }
   } catch (error) {
     console.error(error);
   }
@@ -108,7 +61,11 @@ export default async function PropertiesPage({
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {properties.map((property: any) => {
+        {properties.length === 0 ? (
+          <Card className="rounded-[28px] border-slate-200/80 bg-white/90 shadow-sm md:col-span-2 xl:col-span-3">
+            <CardContent className="p-6 text-sm text-slate-500">Nenhum imóvel cadastrado.</CardContent>
+          </Card>
+        ) : properties.map((property: any) => {
           const photos = Array.isArray(property.photos) ? property.photos : [];
 
           return (
@@ -123,7 +80,7 @@ export default async function PropertiesPage({
               <CardContent className="space-y-3 text-sm text-slate-600">
                 <div className="flex items-center justify-between">
                   <span>Status</span>
-                  <strong className="text-slate-950">{statusLabel[property.status] ?? property.status}</strong>
+                  <strong className="text-slate-950">{statusLabel[property.status] ?? "Sem status"}</strong>
                 </div>
                 <div className="flex items-center justify-between">
                   <span>Preço</span>
@@ -140,7 +97,9 @@ export default async function PropertiesPage({
 
                 {property.shareEnabled && property.shareToken ? (
                   <div className="space-y-2 rounded-2xl bg-slate-50 p-3">
-                    <p className="break-all text-xs text-slate-500">Link público: /p/{property.shareToken}</p>
+                    <p className="break-all text-xs text-slate-500">
+                      <span className="font-medium text-slate-700">Link público:</span> /p/{property.shareToken}
+                    </p>
                     <Link
                       href={`/p/${property.shareToken}`}
                       className="inline-flex rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
@@ -149,11 +108,24 @@ export default async function PropertiesPage({
                     </Link>
                   </div>
                 ) : (
-                  <p className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">Link público desativado</p>
+                  <p className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">Nenhum link cadastrado</p>
                 )}
 
                 <div className="rounded-2xl bg-slate-50 p-3 text-xs text-slate-500">
-                  {photos.length > 0 ? `${photos.length} foto(s) cadastrada(s)` : "Nenhuma foto cadastrada"}
+                  {photos.length > 0 ? (
+                    <div className="space-y-3">
+                      <p className="font-medium text-slate-700">{photos.length} foto(s) cadastrada(s)</p>
+                      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                        <img
+                          src={String(photos[0]?.url ?? "")}
+                          alt={property.address}
+                          className="h-44 w-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <p>Nenhuma foto cadastrada</p>
+                  )}
                 </div>
               </CardContent>
             </Card>

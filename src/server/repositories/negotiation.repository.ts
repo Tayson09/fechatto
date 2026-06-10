@@ -15,6 +15,13 @@ export class NegotiationRepository {
     return prisma.property.findFirst({ where: { id: propertyId, userId, deletedAt: null } });
   }
 
+  async findBasicById(id: string, userId: string) {
+    return prisma.negotiation.findFirst({
+      where: { id, userId },
+      select: { id: true, clientId: true, propertyId: true, userId: true },
+    });
+  }
+
   async findOne(id: string, userId: string) {
     return prisma.negotiation.findFirst({
       where: { id, userId },
@@ -139,6 +146,16 @@ export class NegotiationRepository {
             property: { select: { address: true, city: true } },
           },
         },
+      },
+      orderBy: { date: "desc" },
+    });
+  }
+
+  async listVisitsByNegotiation(userId: string, negotiationId: string) {
+    return prisma.visit.findMany({
+      where: {
+        negotiationId,
+        negotiation: { userId },
       },
       orderBy: { date: "desc" },
     });

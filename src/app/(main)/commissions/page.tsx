@@ -58,127 +58,6 @@ function readSingle(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-type DemoDeal = {
-  id: string;
-  closedAt: string | null;
-  commission: number;
-  client: { name: string };
-  property: { address: string; city: string };
-};
-
-type DemoReport = {
-  totalCommission: number;
-  closedNegotiations: number;
-  forecastCommission: number;
-  conversionRate: number;
-  totalActiveClients: number;
-  totalAvailableProperties: number;
-  openNegotiations: number;
-  averageCommission: number;
-  deals: DemoDeal[];
-};
-
-const demoReports: Record<CommissionPeriod, DemoReport> = {
-  monthly: {
-    totalCommission: 12750,
-    closedNegotiations: 8,
-    forecastCommission: 18400,
-    conversionRate: 42.1,
-    totalActiveClients: 24,
-    totalAvailableProperties: 14,
-    openNegotiations: 11,
-    averageCommission: 1593.75,
-    deals: [
-      {
-        id: "demo-1",
-        closedAt: new Date().toISOString(),
-        commission: 4200,
-        client: { name: "Carlos Mendes" },
-        property: { address: "Rua das Acácias, 120", city: "Fortaleza" },
-      },
-      {
-        id: "demo-2",
-        closedAt: new Date().toISOString(),
-        commission: 3650,
-        client: { name: "Ana Lima" },
-        property: { address: "Av. Beira Mar, 845", city: "Fortaleza" },
-      },
-      {
-        id: "demo-3",
-        closedAt: new Date().toISOString(),
-        commission: 4900,
-        client: { name: "Pedro Santos" },
-        property: { address: "Condomínio Vila Azul", city: "Eusébio" },
-      },
-    ],
-  },
-  quarterly: {
-    totalCommission: 38600,
-    closedNegotiations: 21,
-    forecastCommission: 53100,
-    conversionRate: 46.7,
-    totalActiveClients: 31,
-    totalAvailableProperties: 17,
-    openNegotiations: 14,
-    averageCommission: 1838.1,
-    deals: [
-      {
-        id: "demo-q1",
-        closedAt: new Date().toISOString(),
-        commission: 9200,
-        client: { name: "Juliana Rocha" },
-        property: { address: "Rua Coronel Jucá, 310", city: "Fortaleza" },
-      },
-      {
-        id: "demo-q2",
-        closedAt: new Date().toISOString(),
-        commission: 11100,
-        client: { name: "Ricardo Alves" },
-        property: { address: "Av. Washington Soares, 2200", city: "Fortaleza" },
-      },
-      {
-        id: "demo-q3",
-        closedAt: new Date().toISOString(),
-        commission: 18300,
-        client: { name: "Fernanda Lima" },
-        property: { address: "Condomínio Jardins", city: "Caucaia" },
-      },
-    ],
-  },
-  yearly: {
-    totalCommission: 148900,
-    closedNegotiations: 86,
-    forecastCommission: 174500,
-    conversionRate: 49.3,
-    totalActiveClients: 94,
-    totalAvailableProperties: 28,
-    openNegotiations: 23,
-    averageCommission: 1731.39,
-    deals: [
-      {
-        id: "demo-y1",
-        closedAt: new Date().toISOString(),
-        commission: 24200,
-        client: { name: "Paulo Henrique" },
-        property: { address: "Avenida Santos Dumont, 500", city: "Fortaleza" },
-      },
-      {
-        id: "demo-y2",
-        closedAt: new Date().toISOString(),
-        commission: 31700,
-        client: { name: "Marina Torres" },
-        property: { address: "Rua Silva Paulet, 780", city: "Fortaleza" },
-      },
-      {
-        id: "demo-y3",
-        closedAt: new Date().toISOString(),
-        commission: 28500,
-        client: { name: "Gabriel Nunes" },
-        property: { address: "Condomínio Laguna", city: "Eusébio" },
-      },
-    ],
-  },
-};
 
 export default async function CommissionsPage({
   searchParams,
@@ -191,24 +70,20 @@ export default async function CommissionsPage({
   const resolvedSearchParams = await Promise.resolve(searchParams);
   const period = resolvePeriod(readSingle(resolvedSearchParams?.period));
 
-  let report = demoReports[period];
-  let demoMode = true;
+  let report: any = {
+    totalCommission: 0,
+    closedNegotiations: 0,
+    forecastCommission: 0,
+    conversionRate: 0,
+    totalActiveClients: 0,
+    totalAvailableProperties: 0,
+    openNegotiations: 0,
+    averageCommission: 0,
+    deals: [],
+  };
 
   try {
-    const raw = await service.getCommissionReport(session.user.id, period);
-    const hasRealData =
-      raw.deals.length > 0 ||
-      raw.totalCommission > 0 ||
-      raw.closedNegotiations > 0 ||
-      raw.forecastCommission > 0 ||
-      raw.totalActiveClients > 0 ||
-      raw.totalAvailableProperties > 0 ||
-      raw.openNegotiations > 0;
-
-    if (hasRealData) {
-      report = raw;
-      demoMode = false;
-    }
+    report = await service.getCommissionReport(session.user.id, period);
   } catch (error) {
     console.error(error);
   }

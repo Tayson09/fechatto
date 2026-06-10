@@ -6,9 +6,10 @@ import { CommissionRepository } from "../repositories/commission.repository";
 export class CommissionService {
   constructor(private repo: CommissionRepository) {}
 
-  async getDashboardMetrics(userId: string, period: CommissionPeriod) {
-    return withCache(`dashboard:${userId}:${period}`, async () => {
-      return this.repo.getDashboardMetrics(userId, period);
+  async getDashboardMetrics(userId: string, period: CommissionPeriod, search = "") {
+    const normalizedSearch = search.trim().toLowerCase();
+    return withCache(`dashboard:${userId}:${period}:${normalizedSearch}`, async () => {
+      return this.repo.getDashboardMetrics(userId, period, search);
     }, 60_000);
   }
 

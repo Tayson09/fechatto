@@ -16,32 +16,6 @@ const statusLabel: Record<string, string> = {
   CLOSED_LOST: "Fechado perdido",
 };
 
-const demoNegotiations = [
-  {
-    id: "demo-neg-1",
-    client: { name: "Carlos Mendes" },
-    property: { address: "Rua das Acácias, 120" },
-    status: "IN_PROGRESS",
-    commission: 14400,
-    closedAt: null,
-  },
-  {
-    id: "demo-neg-2",
-    client: { name: "Ana Lima" },
-    property: { address: "Av. Beira Mar, 845" },
-    status: "CLOSED_WON",
-    commission: 26700,
-    closedAt: new Date().toISOString(),
-  },
-  {
-    id: "demo-neg-3",
-    client: { name: "Pedro Santos" },
-    property: { address: "Condomínio Vila Azul" },
-    status: "CLOSED_LOST",
-    commission: 6600,
-    closedAt: new Date().toISOString(),
-  },
-];
 
 export default async function NegotiationsPage({
   searchParams,
@@ -54,18 +28,11 @@ export default async function NegotiationsPage({
   const resolvedSearchParams = await Promise.resolve(searchParams);
 
   let negotiations: any[] = [];
-  let demoMode = true;
 
   try {
     negotiations = await service.list(session.user.id, { take: 100, status: resolvedSearchParams?.status });
-    if (negotiations.length > 0) {
-      demoMode = false;
-    } else {
-      negotiations = demoNegotiations;
-    }
   } catch (error) {
     console.error(error);
-    negotiations = demoNegotiations;
   }
 
   return (

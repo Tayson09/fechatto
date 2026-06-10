@@ -1,9 +1,5 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
 
-/* ─────────────────────────────────────────────────
-   LIGHT MODE — Design tokens
-───────────────────────────────────────────────── */
 :root {
   --background: #ffffff;
   --foreground: #082a54;
@@ -33,80 +29,70 @@
   --shadow-elevated: 0 18px 50px rgba(15, 23, 42, 0.10);
 }
 
-/* ─────────────────────────────────────────────────
-   DARK MODE — Design tokens
-   Superfícies em camadas para criar profundidade:
-     L0 (página):  #080e19
-     L1 (sidebar): #071b33  (já definida)
-     L2 (card):    #0f1b2d
-     L3 (elevado): #16253a
-     L4 (hover):   #1e3047
-───────────────────────────────────────────────── */
-html.dark {
-  color-scheme: dark;
-
-  --background: #080e19;
-  --foreground: #e2e8f0;
-
-  --card: #0f1b2d;
-  --card-foreground: #e2e8f0;
-
-  --muted: #16253a;
-  --muted-foreground: #94a3b8;
-
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.10);
-
-  --primary: #082a54;
-  --primary-foreground: #ffffff;
-
-  --secondary: #ba933a;
-  --secondary-foreground: #ffffff;
-
-  --accent: #ba933a;
-  --accent-foreground: #ffffff;
-
-  --ring: rgba(255, 255, 255, 0.10);
-
-  --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.50);
-  --shadow-elevated: 0 18px 50px rgba(0, 0, 0, 0.60);
-}
-
-/* ─────────────────────────────────────────────────
-   Tailwind color bridge
-───────────────────────────────────────────────── */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
+
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
+
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+
   --color-ring: var(--ring);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-/* ─────────────────────────────────────────────────
-   Base
-───────────────────────────────────────────────── */
-* { box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #ffffff;
+    --foreground: #082a54;
 
-html { scroll-behavior: smooth; }
+    --card: #ffffff;
+    --card-foreground: #082a54;
 
-/* Transições suaves ao trocar de tema */
-body,
-input, textarea, select, button,
-[class*="bg-"], [class*="border-"], [class*="text-"] {
-  transition: background-color 180ms ease, color 120ms ease, border-color 150ms ease, box-shadow 180ms ease;
+    --muted: #f4f6f8;
+    --muted-foreground: #6b7280;
+
+    --border: rgba(8, 42, 84, 0.10);
+    --input: rgba(8, 42, 84, 0.12);
+
+    --primary: #082a54;
+    --primary-foreground: #ffffff;
+
+    --secondary: #ba933a;
+    --secondary-foreground: #ffffff;
+
+    --accent: #ba933a;
+    --accent-foreground: #ffffff;
+
+    --ring: rgba(186, 147, 58, 0.18);
+
+    --shadow-soft: 0 10px 30px rgba(15, 23, 42, 0.06);
+    --shadow-elevated: 0 18px 50px rgba(15, 23, 42, 0.10);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -121,39 +107,49 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-html.dark body {
-  background: linear-gradient(180deg, var(--background), var(--background));
-}
-
 ::selection {
   background: rgba(186, 147, 58, 0.24);
   color: var(--foreground);
 }
 
-a { color: inherit; text-decoration: none; }
+a {
+  color: inherit;
+  text-decoration: none;
+}
 
-button, input, textarea, select { font: inherit; }
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
 
-input, textarea, select {
+input,
+textarea,
+select {
   background: var(--card);
   color: var(--foreground);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   outline: none;
-  transition: border-color 180ms ease, box-shadow 180ms ease;
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus,
+textarea:focus,
+select:focus {
   border-color: rgba(186, 147, 58, 0.35);
   box-shadow: 0 0 0 4px var(--ring);
 }
 
-button { transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease; }
-button:hover { transform: translateY(-1px); }
+button {
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+}
 
-/* ─────────────────────────────────────────────────
-   Utilitários globais
-───────────────────────────────────────────────── */
+button:hover {
+  transform: translateY(-1px);
+}
+
 .card-premium {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(8, 42, 84, 0.10);
@@ -161,106 +157,3 @@ button:hover { transform: translateY(-1px); }
   box-shadow: var(--shadow-soft);
   backdrop-filter: blur(18px);
 }
-
-.main-content-bg {
-  background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
-}
-html.dark .main-content-bg {
-  background: linear-gradient(180deg, #080e19 0%, #0a1525 100%);
-}
-
-/* ─────────────────────────────────────────────────
-   Dark mode — Overrides de classes Tailwind estáticas
-   REGRA: bg escuro no light → bg BRANCO/CLARO no dark (inversão de contraste)
-───────────────────────────────────────────────── */
-
-/* Superfícies */
-html.dark .bg-white        { background-color: #0f1b2d; }
-html.dark .bg-white\/90    { background-color: rgba(15, 27, 45, 0.97); }
-html.dark .bg-slate-50     { background-color: #16253a; }
-html.dark .bg-slate-50\/80 { background-color: rgba(22, 37, 58, 0.80); }
-html.dark .bg-slate-100    { background-color: #1e3047; }
-html.dark .bg-slate-100\/80 { background-color: rgba(30, 48, 71, 0.80); }
-html.dark .bg-slate-200    { background-color: #253a55; }
-
-/* Textos */
-html.dark .text-slate-950  { color: #f1f5f9; }
-html.dark .text-slate-900  { color: #e2e8f0; }
-html.dark .text-slate-800  { color: #cbd5e1; }
-html.dark .text-slate-700  { color: #94a3b8; }
-html.dark .text-slate-600  { color: #94a3b8; }
-html.dark .text-slate-500  { color: #64748b; }
-html.dark .text-slate-400  { color: #475569; }
-html.dark .text-slate-300  { color: #334155; }
-
-/* Bordas */
-html.dark .border-slate-200,
-html.dark .border-slate-200\/80 { border-color: rgba(255, 255, 255, 0.08); }
-html.dark .border-slate-100     { border-color: rgba(255, 255, 255, 0.05); }
-html.dark .divide-slate-100 > * + * { border-color: rgba(255, 255, 255, 0.05); }
-
-/* Hovers */
-html.dark .hover\:bg-slate-100:hover { background-color: #1e3047; }
-html.dark .hover\:bg-slate-50:hover  { background-color: #16253a; }
-html.dark .hover\:text-slate-700:hover { color: #94a3b8; }
-
-/* ─────────────────────────────────────────────────
-   Dark mode — Status badges
-   Princípio: preservar significado da cor mas adaptando
-   para superfícies escuras (fundos translúcidos + textos mais claros)
-───────────────────────────────────────────────── */
-
-/* LEAD — azul */
-html.dark .bg-blue-50  { background-color: rgba(59, 130, 246, 0.12); }
-html.dark .text-blue-700 { color: #93c5fd; }
-html.dark .border-blue-200 { border-color: rgba(59, 130, 246, 0.20); }
-html.dark .text-blue-600 { color: #60a5fa; }
-
-/* IN_PROGRESS — âmbar */
-html.dark .bg-amber-50  { background-color: rgba(245, 158, 11, 0.12); }
-html.dark .text-amber-700 { color: #fcd34d; }
-html.dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.20); }
-html.dark .text-amber-600 { color: #f59e0b; }
-html.dark .text-amber-500 { color: #f59e0b; }
-
-/* PROPOSAL — violeta */
-html.dark .bg-violet-50  { background-color: rgba(139, 92, 246, 0.12); }
-html.dark .text-violet-700 { color: #c4b5fd; }
-html.dark .border-violet-200 { border-color: rgba(139, 92, 246, 0.20); }
-
-/* VISIT — teal */
-html.dark .bg-teal-50  { background-color: rgba(20, 184, 166, 0.12); }
-html.dark .text-teal-700 { color: #5eead4; }
-html.dark .border-teal-200 { border-color: rgba(20, 184, 166, 0.20); }
-html.dark .text-teal-600 { color: #2dd4bf; }
-
-/* CLOSED — esmeralda */
-html.dark .bg-emerald-50  { background-color: rgba(16, 185, 129, 0.12); }
-html.dark .text-emerald-700 { color: #6ee7b7; }
-html.dark .border-emerald-200 { border-color: rgba(16, 185, 129, 0.20); }
-html.dark .text-emerald-300 { color: #34d399; }
-
-/* Erros / Alertas */
-html.dark .bg-red-50    { background-color: rgba(239, 68, 68, 0.10); }
-html.dark .text-red-700 { color: #fca5a5; }
-html.dark .text-red-600 { color: #f87171; }
-html.dark .text-red-500 { color: #f87171; }
-html.dark .border-red-200 { border-color: rgba(239, 68, 68, 0.20); }
-html.dark .border-red-100 { border-color: rgba(239, 68, 68, 0.15); }
-html.dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.12); }
-
-/* ─────────────────────────────────────────────────
-   Dark mode — Login (sempre claro)
-───────────────────────────────────────────────── */
-html.dark .lr-root { background-color: #ffffff; color-scheme: light; }
-html.dark .lr-root .bg-white { background-color: #ffffff; }
-html.dark .lr-root .bg-slate-100 { background-color: #f1f5f9; }
-html.dark .lr-root .text-slate-950,
-html.dark .lr-root .text-slate-900 { color: #0f172a; }
-html.dark .lr-root .text-slate-700,
-html.dark .lr-root .text-slate-600 { color: #475569; }
-html.dark .lr-root .text-slate-500 { color: #64748b; }
-html.dark .lr-root .text-slate-400 { color: #94a3b8; }
-html.dark .lr-root .text-slate-300 { color: #cbd5e1; }
-html.dark .lr-root .border-slate-200 { border-color: #e2e8f0; }
-html.dark .lr-root .border-slate-100 { border-color: #f1f5f9; }

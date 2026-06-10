@@ -9,19 +9,14 @@ type ButtonProps = React.PropsWithChildren<React.ButtonHTMLAttributes<HTMLButton
 };
 
 const variantStyles: Record<ButtonVariant, string> = {
-  // Light: fundo escuro + texto branco → Dark: fundo branco + texto escuro (inversão)
   default:
-    "bg-slate-950 text-white shadow-sm hover:bg-slate-800 " +
-    "dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 dark:shadow-none",
+    "bg-slate-950 text-white shadow-sm hover:bg-slate-800",
   ghost:
-    "bg-transparent text-slate-700 hover:bg-slate-100 hover:text-slate-900 " +
-    "dark:text-slate-300 dark:hover:bg-white/10 dark:hover:text-white",
+    "bg-transparent text-slate-700 hover:bg-slate-100",
   outline:
-    "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50 " +
-    "dark:border-white/12 dark:bg-transparent dark:text-slate-200 dark:hover:bg-white/10 dark:hover:text-white",
+    "border border-slate-200 bg-white text-slate-900 hover:bg-slate-50",
   secondary:
-    "bg-slate-100 text-slate-900 hover:bg-slate-200 " +
-    "dark:bg-white/10 dark:text-slate-200 dark:hover:bg-white/15",
+    "bg-slate-100 text-slate-900 hover:bg-slate-200",
 };
 
 const sizeStyles = {

@@ -1,70 +1,36 @@
-# Fechatto
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-CRM imobiliário feito pra corretores. O objetivo é simples: organizar a carteira de clientes, acompanhar o funil e não perder nenhum follow-up.
+## Getting Started
 
-## Tecnologias
-
-Next.js 16 com App Router, TypeScript, PostgreSQL, Prisma, NextAuth, Tailwind CSS 4 e Zod.
-
-## Como rodar
-
-Instale as dependências:
-
-```bash
-npm install
-```
-
-Crie o arquivo `.env` na raiz do projeto copiando o `.env.example` e preencha com as credenciais do banco:
-
-```env
-DATABASE_URL="postgresql://usuario:senha@host:porta/banco"
-NEXTAUTH_SECRET="uma string longa qualquer"
-NEXTAUTH_URL="http://localhost:3000"
-```
-
-Aplique as migrations para criar as tabelas:
-
-```bash
-npx prisma migrate deploy
-```
-
-Suba o servidor:
+First, run the development server:
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-Acesse `http://localhost:3000`, crie uma conta e comece a usar.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## O que já está funcionando
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-Módulo de clientes completo: lista com busca e filtros, cadastro e edição, ficha detalhada, histórico de interações, kanban do funil com drag-and-drop e página de follow-ups com alertas de vencimento. Dashboard com métricas e gráficos do mês.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Os módulos de imóveis, negociações, visitas e comissões estão no schema do banco mas ainda sem interface.
+## Learn More
 
-## Estrutura
+To learn more about Next.js, take a look at the following resources:
 
-```
-src/
-├── app/
-│   ├── (auth)/          # páginas públicas (login, registro)
-│   ├── (main)/          # páginas protegidas (dashboard, clientes...)
-│   └── api/             # endpoints do backend
-├── components/
-│   ├── ui/              # componentes base (button, card, input, modal...)
-│   └── clients/         # componentes do módulo de clientes
-├── server/
-│   ├── services/        # regras de negócio
-│   ├── repositories/    # queries no banco
-│   └── validators/      # schemas de validação com Zod
-├── lib/                 # configurações globais (auth, prisma, erros)
-└── types/               # tipos TypeScript compartilhados entre front e back
-```
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## Outros comandos úteis
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-```bash
-npx prisma studio       # abre uma interface visual pra ver o banco
-npx prisma migrate dev  # cria uma nova migration durante o desenvolvimento
-npx prisma generate     # regenera o Prisma Client após mudanças no schema
-```
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

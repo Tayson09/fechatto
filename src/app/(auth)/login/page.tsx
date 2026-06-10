@@ -46,7 +46,9 @@ export default function LoginPage() {
   return (
     <>
       <style>{`
-        .lr-root { font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+        .lr-root { font-family: 'DM Sans', sans-serif; }
 
         /* LEFT PANEL */
         .lr-left {
@@ -82,25 +84,25 @@ export default function LoginPage() {
           background: rgba(255,255,255,0.05);
         }
         .lr-brand-title {
-          font-family: Georgia, 'Times New Roman', serif;
+          font-family: 'Playfair Display', serif;
           font-size: 42px; font-weight: 600;
           color: #fff; letter-spacing: -1px; line-height: 1;
         }
         .lr-brand-title span { color: #ba933a; }
         .lr-brand-tagline {
-          font-family: Georgia, 'Times New Roman', serif;
+          font-family: 'Playfair Display', serif;
           font-size: 20px; font-weight: 400;
           color: rgba(255,255,255,0.8); line-height: 1.65;
         }
         .lr-brand-tagline em { color: #ba933a; font-style: italic; }
         .lr-stat-num {
-          font-family: Georgia, 'Times New Roman', serif;
+          font-family: 'Playfair Display', serif;
           font-size: 20px; color: #ba933a;
         }
 
         /* FORM */
         .lr-form-title {
-          font-family: Georgia, 'Times New Roman', serif;
+          font-family: 'Playfair Display', serif;
           font-size: 30px; color: #082a54; letter-spacing: -0.5px;
         }
         .lr-input {
@@ -108,7 +110,7 @@ export default function LoginPage() {
           border: 1.5px solid #e2e8f0;
           border-radius: 10px;
           font-size: 15px;
-          font-family: ui-sans-serif, system-ui, sans-serif;
+          font-family: 'DM Sans', sans-serif;
           color: #082a54;
           background: #f8fafc;
           transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;

@@ -8,18 +8,10 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 const variants: Record<BadgeVariant, string> = {
-  default:
-    "bg-slate-950 text-white " +
-    "dark:bg-white/12 dark:text-slate-200",
-  secondary:
-    "bg-slate-100 text-slate-700 " +
-    "dark:bg-white/8 dark:text-slate-300",
-  destructive:
-    "bg-red-50 text-red-700 " +
-    "dark:bg-red-500/15 dark:text-red-400",
-  outline:
-    "border border-slate-200 bg-white text-slate-700 " +
-    "dark:border-white/12 dark:bg-transparent dark:text-slate-300",
+  default: "bg-slate-950 text-white",
+  secondary: "bg-slate-100 text-slate-700",
+  destructive: "bg-red-50 text-red-700",
+  outline: "border border-slate-200 bg-white text-slate-700",
 };
 
 export function Badge({

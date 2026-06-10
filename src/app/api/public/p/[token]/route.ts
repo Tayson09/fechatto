@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { invalidateCache } from "@/lib/cache";
 
 export async function GET(_: NextRequest, { params }: { params?: Promise<{ token: string }> | { token: string } }) {
   const resolvedParams = await Promise.resolve(params);
@@ -7,6 +8,7 @@ export async function GET(_: NextRequest, { params }: { params?: Promise<{ token
     where: { shareToken: resolvedParams?.token, shareEnabled: true, deletedAt: null },
     select: {
       id: true,
+      userId: true,
       type: true,
       address: true,
       city: true,
@@ -27,6 +29,7 @@ export async function GET(_: NextRequest, { params }: { params?: Promise<{ token
       where: { id: property.id },
       data: { shareViews: { increment: 1 } },
     })
+    .then(() => invalidateCache(`dashboard:${property.userId}:`))
     .catch(console.error);
 
   return NextResponse.json({ data: property });

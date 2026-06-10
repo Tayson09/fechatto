@@ -32,6 +32,12 @@ export class NegotiationService {
     return negotiation;
   }
 
+  async ensureOwner(userId: string, negotiationId: string) {
+    const negotiation = await this.repo.findBasicById(negotiationId, userId);
+    if (!negotiation) throw new NotFoundError("Negociação");
+    return negotiation;
+  }
+
   async update(userId: string, negotiationId: string, data: unknown) {
     const validated = UpdateNegotiationSchema.parse(data) as UpdateNegotiationInput;
     await this.getById(userId, negotiationId);
@@ -65,11 +71,16 @@ export class NegotiationService {
   }
 
   async addVisit(userId: string, negotiationId: string, date: Date, result?: string | null) {
-    await this.getById(userId, negotiationId);
+    await this.ensureOwner(userId, negotiationId);
     return this.repo.addVisit(negotiationId, date, result);
   }
 
   async listVisits(userId: string) {
     return this.repo.listVisits(userId);
+  }
+
+  async listVisitsByNegotiation(userId: string, negotiationId: string) {
+    await this.ensureOwner(userId, negotiationId);
+    return this.repo.listVisitsByNegotiation(userId, negotiationId);
   }
 }

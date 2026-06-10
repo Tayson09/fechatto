@@ -12,8 +12,8 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const { overdue } = await service.getFollowUps(session.user.id);
-    return NextResponse.json({ data: overdue });
+    const data = await service.getOverdueFollowUps(session.user.id);
+    return NextResponse.json({ data });
   } catch (error) {
     if (error instanceof AppError) return NextResponse.json({ error: error.message }, { status: error.statusCode });
     console.error(error);
