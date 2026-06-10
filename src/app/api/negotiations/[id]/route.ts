@@ -9,11 +9,12 @@ import { NegotiationService } from "@/server/services/negotiation.service";
 const service = new NegotiationService(new NegotiationRepository());
 
 export async function GET(_: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const data = await service.getById(session.user.id, params.id);
+    const data = await service.getById(session.user.id, id);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
@@ -21,12 +22,13 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
     const body = await req.json();
-    const data = await service.update(session.user.id, params.id, body);
+    const data = await service.update(session.user.id, id, body);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
