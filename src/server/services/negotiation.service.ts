@@ -1,9 +1,10 @@
 import { invalidateCache, withCache } from "@/lib/cache";
-import { NotFoundError } from "@/lib/errors";
+import { AppError, NotFoundError } from "@/lib/errors";
 import { NegotiationRepository } from "../repositories/negotiation.repository";
 import { CloseNegotiationSchema, CreateNegotiationSchema, CreateVisitSchema, UpdateNegotiationSchema } from "../validators/negotiation.schema";
 import type { CloseNegotiationSchemaInput, CreateNegotiationSchemaInput, CreateVisitSchemaInput, UpdateNegotiationSchemaInput } from "../validators/negotiation.schema";
 import { NegotiationStatus } from "@prisma/client";
+
 
 export class NegotiationService {
   constructor(private repo: NegotiationRepository) {}
@@ -49,6 +50,11 @@ export class NegotiationService {
   async close(userId: string, negotiationId: string, data: unknown) {
     const validated = CloseNegotiationSchema.parse(data) as CloseNegotiationSchemaInput;
     const negotiation = await this.getById(userId, negotiationId);
+
+    if (negotiation.status !== NegotiationStatus.IN_PROGRESS) {
+      throw new AppError("Negociação já encerrada", 409);
+    }
+
     const property = await this.repo.findProperty(userId, negotiation.propertyId);
 
     if (!property) throw new NotFoundError("Imóvel");
