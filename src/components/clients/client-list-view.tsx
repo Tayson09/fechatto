@@ -9,7 +9,7 @@ import { ClientTableRow } from "./client-table-row";
 import { cn } from "@/lib/utils";
 import type { ClientCard, ClientStatus } from "@/types/client";
 
-const STATUS_FILTERS: { value: ClientStatus | ""; label: string }[] = [
+const STATUS_FILTERS: { value: ClientStatus | ""; label: string }[] = [ 
   { value: "", label: "Todos" },
   { value: "LEAD", label: "Lead" },
   { value: "IN_PROGRESS", label: "Em Atendimento" },
