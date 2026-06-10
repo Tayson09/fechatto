@@ -102,8 +102,8 @@ export function ClientListView() {
             className={cn(
               "shrink-0 rounded-xl px-3 py-1.5 text-sm font-medium transition-colors",
               statusFilter === f.value
-                ? "bg-slate-950 text-white shadow-sm"
-                : "text-slate-500 hover:bg-slate-100"
+                ? "bg-[#082a54] text-white shadow-sm"
+                : "text-[#082a54] hover:bg-slate-100"
             )}
           >
             {f.label}

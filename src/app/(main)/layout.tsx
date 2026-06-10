@@ -14,7 +14,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
   return (
     <div className="min-h-screen bg-slate-950 lg:flex">
       <MainSidebar />
-      <div className="flex min-w-0 flex-1 flex-col bg-[linear-gradient(180deg,#f8fafc_0%,#eef3f8_100%)]">
+      <div className="main-content-bg flex min-w-0 flex-1 flex-col">
         <main className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
