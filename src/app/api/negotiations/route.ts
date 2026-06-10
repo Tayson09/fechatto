@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
 import { NegotiationRepository } from "@/server/repositories/negotiation.repository";
 import { NegotiationService } from "@/server/services/negotiation.service";
+import { NegotiationStatusSchema } from "@/server/validators/negotiation.schema";
 
 const service = new NegotiationService(new NegotiationRepository());
 
@@ -16,7 +17,9 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, Number(searchParams.get("page") ?? 1));
     const limit = Math.min(Number(searchParams.get("limit") ?? 20), 100);
-    const status = searchParams.get("status") || undefined;
+    const rawStatus = searchParams.get("status");
+    const parsedStatus = NegotiationStatusSchema.safeParse(rawStatus);
+    const status = parsedStatus.success ? parsedStatus.data : undefined;
     const data = await service.list(session.user.id, { skip: (page - 1) * limit, take: limit, status });
     return NextResponse.json({ data, page, limit });
   } catch (error) {
