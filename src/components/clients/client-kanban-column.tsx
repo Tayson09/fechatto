@@ -14,12 +14,18 @@ export function ClientKanbanColumn({ status, clients }: ClientKanbanColumnProps)
   const styles = STATUS_STYLES[status];
 
   return (
-    <div className="flex w-[272px] shrink-0 flex-col rounded-3xl border border-slate-200 bg-slate-50">
+    <div className={cn(
+      "flex w-[272px] shrink-0 flex-col rounded-3xl border border-slate-200 bg-slate-50",
+      "dark:border-white/8 dark:bg-[#0f1b2d]"
+    )}>
       {/* Column header */}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <span className={cn("h-2.5 w-2.5 rounded-full", styles.dot)} />
-          <span className="text-sm font-semibold text-slate-700">
+          <span className={cn(
+            "text-sm font-semibold text-slate-700",
+            "dark:text-slate-300"
+          )}>
             {STATUS_LABELS[status]}
           </span>
         </div>
@@ -43,7 +49,7 @@ export function ClientKanbanColumn({ status, clients }: ClientKanbanColumnProps)
             {...provided.droppableProps}
             className={cn(
               "flex-1 space-y-2 overflow-y-auto px-3 pb-3 transition-colors",
-              snapshot.isDraggingOver && "bg-slate-100/80"
+              snapshot.isDraggingOver && "bg-slate-100/80 dark:bg-white/8"
             )}
             style={{ minHeight: 80, maxHeight: "calc(100vh - 260px)" }}
           >
@@ -70,8 +76,11 @@ export function ClientKanbanColumn({ status, clients }: ClientKanbanColumnProps)
             ))}
             {provided.placeholder}
             {clients.length === 0 && !snapshot.isDraggingOver && (
-              <div className="flex h-16 items-center justify-center rounded-2xl border border-dashed border-slate-200">
-                <p className="text-xs text-slate-400">Sem clientes</p>
+              <div className={cn(
+                "flex h-16 items-center justify-center rounded-2xl border border-dashed border-slate-200",
+                "dark:border-white/8"
+              )}>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Sem clientes</p>
               </div>
             )}
           </div>
