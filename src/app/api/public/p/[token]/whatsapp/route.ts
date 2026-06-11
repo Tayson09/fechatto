@@ -6,11 +6,28 @@ import { PropertyService } from "@/server/services/property.service";
 
 const service = new PropertyService(new PropertyRepository());
 
-export async function GET(_: NextRequest, { params }: { params: { token: string } }) {
+function buildWhatsAppUrl(phone: string, message: string) {
+  const digits = phone.replace(/\D/g, "");
+  return `https://wa.me/55${digits}?text=${encodeURIComponent(message)}`;
+}
+
+export async function POST(_: NextRequest, { params }: { params: { token: string } }) {
   try {
     const { token } = params;
-    const data = await service.getPublicByToken(token);
-    return NextResponse.json({ data });
+    const property = await service.getPublicByToken(token);
+
+    const phone = property.user?.phone;
+    if (!phone) {
+      return NextResponse.json(
+        { error: "Corretor sem telefone cadastrado" },
+        { status: 400 }
+      );
+    }
+
+    const message = `Olá! Tenho interesse no imóvel ${property.address}, em ${property.city}.`;
+    const url = buildWhatsAppUrl(phone, message);
+
+    return NextResponse.json({ data: { url } });
   } catch (error) {
     return handleError(error);
   }

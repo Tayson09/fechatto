@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { ZodError } from "zod";
+import { authOptions } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
 import { PropertyRepository } from "@/server/repositories/property.repository";
 import { PropertyService } from "@/server/services/property.service";
 
 const service = new PropertyService(new PropertyRepository());
 
-export async function GET(_: NextRequest, { params }: { params: { token: string } }) {
+export async function DELETE(
+  _: NextRequest,
+  { params }: { params: { id: string; photoId: string } }
+) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
   try {
-    const { token } = params;
-    const data = await service.getPublicByToken(token);
+    const { id, photoId } = params;
+    const data = await service.removePhoto(session.user.id, id, photoId);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
@@ -18,7 +26,10 @@ export async function GET(_: NextRequest, { params }: { params: { token: string 
 
 function handleError(error: unknown) {
   if (error instanceof ZodError) {
-    return NextResponse.json({ error: "Dados inválidos" }, { status: 422 });
+    return NextResponse.json(
+      { error: "Dados inválidos", details: error.flatten() },
+      { status: 422 }
+    );
   }
 
   if (error instanceof AppError) {

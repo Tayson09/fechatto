@@ -4,19 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
-  Building2,
   CalendarClock,
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
-  FileText,
   Home,
   LayoutDashboard,
   LogOut,
   Menu,
-  MessageSquare,
   Moon,
-  Settings,
   ShieldCheck,
   Sun,
   TrendingUp,
@@ -25,7 +21,6 @@ import {
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -37,9 +32,6 @@ const items = [
   { label: "Comissões", href: "/commissions", icon: CircleDollarSign },
   { label: "Visitas", href: "/visits", icon: CalendarClock },
   { label: "Relatórios", href: "/reports", icon: BarChart3 },
-  { label: "Documentos", href: "/documents", icon: FileText },
-  { label: "Mensagens", href: "/messages", icon: MessageSquare },
-  { label: "Configurações", href: "/settings", icon: Settings },
 ];
 
 export function MainSidebar() {
@@ -69,8 +61,9 @@ export function MainSidebar() {
 
   function renderContent(isMobile = false) {
     const mini = collapsed && !isMobile;
+
     return (
-      <div className="flex h-full flex-col bg-[#071b33] text-white">
+      <div className="flex h-full flex-col overflow-y-auto bg-[#071b33] text-white">
         {/* Header */}
         <div className={cn("border-b border-white/10", mini ? "px-3 py-5" : "px-6 py-6")}>
           <div className={cn("flex items-center", mini ? "justify-center" : "justify-between")}>
@@ -85,6 +78,7 @@ export function MainSidebar() {
                 </div>
               )}
             </Link>
+
             {!isMobile && (
               <button
                 onClick={toggleCollapsed}
@@ -99,30 +93,13 @@ export function MainSidebar() {
 
         {/* Content */}
         <div className={cn("flex-1 py-5", mini ? "px-2" : "px-4")}>
-          {!mini && (
-            <div className="mb-5 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-lg shadow-black/10">
-              <div className="mb-3 flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/40">
-                <Building2 className="h-3.5 w-3.5" />
-                Painel analítico
-              </div>
-              <p className="text-sm leading-6 text-white/80">
-                Monitore clientes, imóveis, visitas, negociações e comissões em um único ambiente.
-              </p>
-              <div className="mt-4 flex gap-2">
-                <Badge className="bg-[#ba933a] text-slate-950">Online</Badge>
-                <Badge variant="outline" className="border-white/15 bg-transparent text-white/75">
-                  Dashboard ativo
-                </Badge>
-              </div>
-            </div>
-          )}
-
           <nav className="space-y-1">
             {items.map((item) => {
               const Icon = item.icon;
               const active =
                 pathname === item.href ||
                 (item.href !== "/" && pathname.startsWith(item.href));
+
               return (
                 <Link
                   key={item.label}
@@ -152,21 +129,13 @@ export function MainSidebar() {
         {/* Footer */}
         <div className="border-t border-white/10 p-4">
           <div className={cn("rounded-3xl bg-white/5 ring-1 ring-white/10", mini ? "p-2" : "p-4")}>
-            <div className={cn("flex items-center gap-3", mini && "justify-center")}>
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-800 ring-1 ring-white/10">
-                <ShieldCheck className="h-5 w-5 text-[#ba933a]" />
-              </div>
-              {!mini && (
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-white">Tayson Silva</p>
-                  <p className="truncate text-xs text-white/40">Corretor premium</p>
-                </div>
-              )}
-            </div>
-
             <div className={cn("mt-3 flex items-center gap-2", mini && "mt-2 flex-col")}>
               {mini ? (
-                <button className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/10 text-white transition hover:bg-white/15">
+                <button
+                  title="Sair"
+                  aria-label="Sair"
+                  className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white/10 text-white transition hover:bg-white/15"
+                >
                   <LogOut className="h-4 w-4" />
                 </button>
               ) : (
@@ -175,6 +144,7 @@ export function MainSidebar() {
                   Sair
                 </Button>
               )}
+
               {mounted && (
                 <button
                   onClick={toggleTheme}
@@ -197,10 +167,19 @@ export function MainSidebar() {
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Espaço reservado no desktop para não sobrepor o conteúdo */}
+      <div
+        className={cn(
+          "hidden lg:block shrink-0 transition-all duration-300",
+          collapsed ? "w-[72px]" : "w-80"
+        )}
+        aria-hidden="true"
+      />
+
+      {/* Sidebar fixa no desktop */}
       <aside
         className={cn(
-          "hidden shrink-0 transition-all duration-300 lg:block",
+          "fixed left-0 top-0 z-30 hidden h-screen shrink-0 transition-all duration-300 lg:block",
           collapsed ? "w-[72px]" : "w-80"
         )}
       >
@@ -232,6 +211,7 @@ export function MainSidebar() {
             <p className="text-xs text-slate-500 dark:text-white/40">CRM Imobiliário</p>
           </div>
         </div>
+
         <div className="flex items-center gap-2">
           {mounted && (
             <button
@@ -242,6 +222,7 @@ export function MainSidebar() {
               {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
           )}
+
           <Button variant="outline" size="icon" onClick={() => setOpen(true)} className="rounded-2xl">
             <Menu className="h-5 w-5" />
           </Button>

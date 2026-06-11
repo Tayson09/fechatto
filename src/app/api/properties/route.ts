@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { AppError } from "@/lib/errors";
 import { PropertyRepository } from "@/server/repositories/property.repository";
 import { PropertyService } from "@/server/services/property.service";
+import { PropertyStatusSchema } from "@/server/validators/property.schema";
 
 const service = new PropertyService(new PropertyRepository());
 
@@ -15,8 +16,12 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, Number(searchParams.get("page") ?? 1));
-    const limit = Math.min(Number(searchParams.get("limit") ?? 20), 100);
-    const status = searchParams.get("status") || undefined;
+    const limit = Math.min(Math.max(1, Number(searchParams.get("limit") ?? 20)), 100);
+
+    const rawStatus = searchParams.get("status");
+    const parsedStatus = PropertyStatusSchema.safeParse(rawStatus);
+    const status = parsedStatus.success ? parsedStatus.data : undefined;
+
     const type = searchParams.get("type") || undefined;
     const search = searchParams.get("search") || undefined;
 
@@ -24,7 +29,7 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * limit,
       take: limit,
       status,
-      type,
+      type: type as any,
       search,
     });
 
@@ -48,8 +53,17 @@ export async function POST(req: NextRequest) {
 }
 
 function handleError(error: unknown) {
-  if (error instanceof ZodError) return NextResponse.json({ error: "Dados inválidos", details: error.flatten() }, { status: 422 });
-  if (error instanceof AppError) return NextResponse.json({ error: error.message }, { status: error.statusCode });
+  if (error instanceof ZodError) {
+    return NextResponse.json(
+      { error: "Dados inválidos", details: error.flatten() },
+      { status: 422 }
+    );
+  }
+
+  if (error instanceof AppError) {
+    return NextResponse.json({ error: error.message }, { status: error.statusCode });
+  }
+
   console.error(error);
   return NextResponse.json({ error: "Erro interno" }, { status: 500 });
 }

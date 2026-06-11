@@ -13,20 +13,22 @@ export async function GET(_: NextRequest, { params }: { params: { id: string } }
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const data = await service.getById(session.user.id, params.id);
+    const { id } = params;
+    const data = await service.getById(session.user.id, id);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
+    const { id } = params;
     const body = await req.json();
-    const data = await service.update(session.user.id, params.id, body);
+    const data = await service.update(session.user.id, id, body);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
@@ -38,7 +40,8 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const data = await service.softDelete(session.user.id, params.id);
+    const { id } = params;
+    const data = await service.remove(session.user.id, id);
     return NextResponse.json({ data });
   } catch (error) {
     return handleError(error);
@@ -46,8 +49,17 @@ export async function DELETE(_: NextRequest, { params }: { params: { id: string 
 }
 
 function handleError(error: unknown) {
-  if (error instanceof ZodError) return NextResponse.json({ error: "Dados inválidos", details: error.flatten() }, { status: 422 });
-  if (error instanceof AppError) return NextResponse.json({ error: error.message }, { status: error.statusCode });
+  if (error instanceof ZodError) {
+    return NextResponse.json(
+      { error: "Dados inválidos", details: error.flatten() },
+      { status: 422 }
+    );
+  }
+
+  if (error instanceof AppError) {
+    return NextResponse.json({ error: error.message }, { status: error.statusCode });
+  }
+
   console.error(error);
   return NextResponse.json({ error: "Erro interno" }, { status: 500 });
 }

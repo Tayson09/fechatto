@@ -6,11 +6,11 @@ import { PropertyService } from "@/server/services/property.service";
 
 const service = new PropertyService(new PropertyRepository());
 
-export async function GET(_: NextRequest, { params }: { params: { token: string } }) {
+export async function POST(_: NextRequest, { params }: { params: { token: string } }) {
   try {
     const { token } = params;
-    const data = await service.getPublicByToken(token);
-    return NextResponse.json({ data });
+    const data = await service.incrementPublicView(token);
+    return NextResponse.json({ data }, { status: 201 });
   } catch (error) {
     return handleError(error);
   }
